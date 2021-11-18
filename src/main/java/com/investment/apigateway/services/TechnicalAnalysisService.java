@@ -57,7 +57,7 @@ public class TechnicalAnalysisService {
         System.out.print("API Gateway Correlation Id: " + correlation_id);
         Mono<TechnicalAnalysisServerResponse> responseMono = webClientBuilder.build()
                 .get()
-                .uri("http://technical-analysis-service/test") // http://{service-name}/endpoint
+                .uri("http://technical-analysis-service/simpleMovingDayAnalysis?ticker=" + ticker + "&stockPrice=" + stockPrice) // http://{service-name}/endpoint
                 .header("correlation-id", correlation_id)
                 .retrieve()
                 .bodyToMono(TechnicalAnalysisServerResponse.class);
