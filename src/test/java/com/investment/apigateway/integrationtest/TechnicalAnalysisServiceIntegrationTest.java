@@ -17,6 +17,7 @@ import server.technicalanalysis.TechnicalAnalysisServerResponse;
 import java.io.IOException;
 
 @ExtendWith(MockitoExtension.class)
+@Ignore
 public class TechnicalAnalysisServiceIntegrationTest {
 
     private TechnicalAnalysisService technicalAnalysisService;
@@ -38,23 +39,23 @@ public class TechnicalAnalysisServiceIntegrationTest {
         mockWebServer.shutdown();
     }
 
-    @Test
-    @Ignore
-    // May not work due to the use of @LoadBalanced.
-    // Change the code (TechnicalAnalysisService) to hit an actual endpoint /test - What happens? - it works Ok. MockWebServer does not seem to like the Eureka URL
-    public void test() {
-        // given
-        String ticker = "IBM";
-        String stockPrice = "200.00";
-
-        mockWebServer.enqueue(new MockResponse().setBody("testResponsea"));
-
-        // when
-        Mono<TechnicalAnalysisServerResponse> result = technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice);
-
-        // then
-        StepVerifier.create(result.log())
-                .expectNext(new TechnicalAnalysisServerResponse())
-                .verifyComplete();
-    }
+//    @Test
+//    @Ignore
+//    // May not work due to the use of @LoadBalanced.
+//    // Change the code (TechnicalAnalysisService) to hit an actual endpoint /test - What happens? - it works Ok. MockWebServer does not seem to like the Eureka URL
+//    public void test() {
+//        // given
+//        String ticker = "IBM";
+//        String stockPrice = "200.00";
+//
+//        mockWebServer.enqueue(new MockResponse().setBody("testResponsea"));
+//
+//        // when
+//        Mono<TechnicalAnalysisServerResponse> result = technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice);
+//
+//        // then
+//        StepVerifier.create(result.log())
+//                .expectNext(new TechnicalAnalysisServerResponse())
+//                .verifyComplete();
+//    }
 }

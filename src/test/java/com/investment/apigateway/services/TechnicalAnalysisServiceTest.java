@@ -85,7 +85,7 @@ public class TechnicalAnalysisServiceTest {
         // given
         when(webClientBuilderMock.build()).thenReturn(webClientMock);
         when(webClientBuilderMock.build().get()).thenReturn(requestHeadersUriMock);
-        when(requestHeadersUriMock.uri("http://technical-analysis-service/test")).thenReturn(requestHeadersMock);
+        when(requestHeadersUriMock.uri("http://technical-analysis-service/simpleMovingDayAnalysis?ticker=IBM&stockPrice=200.0")).thenReturn(requestHeadersMock);
 //        when(requestHeadersUriMock.header("correlation-id")).thenReturn(requestHeadersMock);
 //        when(requestHeadersUriMock.headers(notNull())).thenReturn(requestHeadersMock);
 //        when(requestHeadersMock.header("correlation-id")).thenReturn(UUID.randomUUID().toString());
