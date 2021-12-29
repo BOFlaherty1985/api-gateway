@@ -51,8 +51,6 @@ public class TechnicalAnalysisService {
         // https://github.com/spring-projects/spring-boot/issues/19525
 
         /// Can we return a Response entity, but .flatMap( to TechnicalAnalysisResponse class?)
-
-
         String correlation_id = randomUUID().toString();
         System.out.print("API Gateway Correlation Id: " + correlation_id);
         Mono<TechnicalAnalysisServerResponse> responseMono = webClientBuilder.build()
@@ -63,7 +61,6 @@ public class TechnicalAnalysisService {
                 .bodyToMono(TechnicalAnalysisServerResponse.class);
 
         return responseMono;
-
     }
 
     public boolean isNullOrEmpty(String value) {

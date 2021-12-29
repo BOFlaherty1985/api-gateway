@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple4;
+import server.companydetails.CompanyDetailsServerResponse;
 import server.technicalanalysis.TechnicalAnalysisServerResponse;
 
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class StockDashboardHandlers {
         Optional<String> ticker = Optional.of("IBM");
 
         // Company Service
-        Mono<String> company = companyService.getCompanyResult(ticker.get());
+        Mono<CompanyDetailsServerResponse> company = companyService.getCompanyResult(ticker.get());
 
         // User Service
         Mono<String> user = Mono.just("user");
@@ -53,17 +54,18 @@ public class StockDashboardHandlers {
 
         return Mono.zip(company, user, stock, test)
                 .flatMap(objects ->
-                        ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                        ServerResponse.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .body(fromObject(buildResult(objects))));
     }
 
-    public Result buildResult(Tuple4<String, String, String, TechnicalAnalysisServerResponse> tuple4) {
+    public Result buildResult(Tuple4<CompanyDetailsServerResponse, String, String, TechnicalAnalysisServerResponse> tuple4) {
         return new Result(tuple4.getT1(), tuple4.getT2(), tuple4.getT3(), tuple4.getT4());
     }
 
     public class Result {
 
-        String company;
+        CompanyDetailsServerResponse company;
         String user;
         String stock;
         TechnicalAnalysisServerResponse technicalAnalysis;
@@ -71,14 +73,14 @@ public class StockDashboardHandlers {
         public Result() {
         }
 
-        public Result(String company, String user, String stock, TechnicalAnalysisServerResponse  technicalAnalysis) {
+        public Result(CompanyDetailsServerResponse company, String user, String stock, TechnicalAnalysisServerResponse  technicalAnalysis) {
             this.company = company;
             this.user = user;
             this.stock = stock;
             this.technicalAnalysis = technicalAnalysis;
         }
 
-        public String getCompany() {
+        public CompanyDetailsServerResponse getCompany() {
             return company;
         }
 
