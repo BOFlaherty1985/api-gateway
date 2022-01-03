@@ -13,6 +13,7 @@ import server.technicalanalysis.Indicator;
 import server.technicalanalysis.TechnicalAnalysisServerResponse;
 import server.technicalanalysis.TechnicalAnalysisServerResponseBuilder;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,11 +51,12 @@ public class TechnicalAnalysisServiceTest {
     @Test
     public void shouldFailValidationWhenTickerIsEmptyOrNull() {
         // given
-        String ticker = getRandomValueOfEmptyOrNull();
+        Optional<String> ticker = Optional.empty();
+        Optional<String> stockPrice = Optional.of("200.00");
 
         // when
         Throwable exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, "200.00");
+            technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice);
         });
 
         assertEquals(exception.getMessage(), "Ticker & StockPrice must not be empty or null.");
@@ -63,21 +65,15 @@ public class TechnicalAnalysisServiceTest {
     @Test
     public void shouldFailValidationWhenStockPriceIsEmptyOrNull() {
         // given
-        String stockPrice = getRandomValueOfEmptyOrNull();
+        Optional<String> stockPrice = Optional.empty();
 
         // when
         Throwable exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            technicalAnalysisService.getSimpleMovingDayAverageResult("IBM", stockPrice);
+            Optional<String> ticker = Optional.of("IBM");
+            technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice);
         });
 
         assertEquals(exception.getMessage(), "Ticker & StockPrice must not be empty or null.");
-    }
-
-    private String getRandomValueOfEmptyOrNull() {
-        List<String> tickerValues = new ArrayList();
-        tickerValues.add("");
-        tickerValues.add(null);
-        return tickerValues.get(new Random().nextInt(tickerValues.size()));
     }
 
     @Test
@@ -97,8 +93,8 @@ public class TechnicalAnalysisServiceTest {
         when(responseMock.bodyToMono(TechnicalAnalysisServerResponse.class)).thenReturn(Mono.just(technicalAnalysisServiceResponse));
 
 
-        String ticker = "IBM";
-        String stockPrice = "200.0";
+        Optional<String> ticker = Optional.of("IBM");
+        Optional<String> stockPrice = Optional.of("200.0");
 
         // when
         Mono<TechnicalAnalysisServerResponse> result = technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice);

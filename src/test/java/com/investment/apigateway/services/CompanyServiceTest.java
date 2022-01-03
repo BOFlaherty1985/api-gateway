@@ -1,6 +1,5 @@
 package com.investment.apigateway.services;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -55,7 +54,7 @@ public class CompanyServiceTest {
         when(requestHeadersMock.header(any(), any())).thenReturn(requestHeadersMock);
         when(requestHeadersMock.retrieve()).thenReturn(responseMock);
 
-        String ticker = "IBM";
+        Optional<String> ticker = Optional.of("IBM");
 
         // when
         CompanyDetailsServerResponse response = CompanyDetailsServerResponseBuilder.builder.build();
@@ -70,18 +69,9 @@ public class CompanyServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenTickerIsNull() {
-        // given
-        String ticker = null;
-
-        // when
-        assertThrows(IllegalArgumentException.class, () -> companyService.getCompanyResult(ticker));
-    }
-
-    @Test
     public void shouldThrowExceptionWhenTickerIsEmpty() {
         // given
-        String ticker = "";
+        Optional<String> ticker = Optional.empty();
 
         // when
         assertThrows(IllegalArgumentException.class, () -> companyService.getCompanyResult(ticker));
@@ -118,7 +108,7 @@ public class CompanyServiceTest {
         when(responseMock.bodyToMono(CompanyDetailsServerResponse.class)).thenReturn(Mono.just(companyDetailsServerResponse));
 
         // when
-        Mono<CompanyDetailsServerResponse> result = companyService.getCompanyResult(ticker.get());
+        Mono<CompanyDetailsServerResponse> result = companyService.getCompanyResult(ticker);
 
         // then
         StepVerifier.create(result.log())

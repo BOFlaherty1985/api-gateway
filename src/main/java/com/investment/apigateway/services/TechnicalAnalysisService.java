@@ -1,11 +1,12 @@
 package com.investment.apigateway.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import server.technicalanalysis.TechnicalAnalysisServerResponse;
+
+import java.util.Optional;
 
 import static java.util.UUID.randomUUID;
 
@@ -13,7 +14,7 @@ import static java.util.UUID.randomUUID;
 public class TechnicalAnalysisService {
 
     // https://spring.io/guides/gs/spring-cloud-loadbalancer/
-    // https://spring.io/blog/2020/03/25/spring-tips-spring-cloud-loadbalancer // TODO - BLOG POST MATIERIAL
+    // https://spring.io/blog/2020/03/25/spring-tips-spring-cloud-loadbalancer // TODO - BLOG POST MATERIAL
     private WebClient.Builder webClientBuilder;
     private WebClient webClient;
 
@@ -30,9 +31,10 @@ public class TechnicalAnalysisService {
         webClientBuilder = WebClient.builder().baseUrl(baseUrl);
     }
 
-    public Mono<TechnicalAnalysisServerResponse> getSimpleMovingDayAverageResult(String ticker, String stockPrice) {
+    public Mono<TechnicalAnalysisServerResponse> getSimpleMovingDayAverageResult(Optional<String> ticker,
+                                                                                 Optional<String> stockPrice) {
 
-        if (isNullOrEmpty(ticker) || isNullOrEmpty(stockPrice)) {
+        if (ticker.isEmpty()|| stockPrice.isEmpty()) {
             throw new IllegalArgumentException("Ticker & StockPrice must not be empty or null.");
         }
 
@@ -55,16 +57,12 @@ public class TechnicalAnalysisService {
         System.out.print("API Gateway Correlation Id: " + correlation_id);
         Mono<TechnicalAnalysisServerResponse> responseMono = webClientBuilder.build()
                 .get()
-                .uri("http://technical-analysis-service/simpleMovingDayAnalysis?ticker=" + ticker + "&stockPrice=" + stockPrice) // http://{service-name}/endpoint
+                .uri("http://technical-analysis-service/simpleMovingDayAnalysis?ticker="
+                        + ticker.get() + "&stockPrice=" + stockPrice.get()) // http://{service-name}/endpoint
                 .header("correlation-id", correlation_id)
                 .retrieve()
                 .bodyToMono(TechnicalAnalysisServerResponse.class);
 
         return responseMono;
     }
-
-    public boolean isNullOrEmpty(String value) {
-        return value == null || value.isEmpty();
-    }
-
 }

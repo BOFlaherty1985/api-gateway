@@ -35,17 +35,18 @@ public class StockDashboardHandlers {
         Optional<String> ticker = Optional.of("IBM");
 
         // Company Service
-        Mono<CompanyDetailsServerResponse> company = companyService.getCompanyResult(ticker.get());
+        Mono<CompanyDetailsServerResponse> company = companyService.getCompanyResult(ticker);
 
         // User Service
         Mono<String> user = Mono.just("user");
 
         // Stock Price Service
         Mono<String> stock = Mono.just("stockPrice");
-        String stockPrice = "200.00";
+        Optional<String> stockPrice = Optional.of("200.00");
 
         // Technical Analysis Service
-        Mono<TechnicalAnalysisServerResponse> test = technicalAnalysisService.getSimpleMovingDayAverageResult(ticker.get(), stockPrice);
+        Mono<TechnicalAnalysisServerResponse> test = technicalAnalysisService
+                .getSimpleMovingDayAverageResult(ticker, stockPrice);
 
         // Multiple Mono to Single Response
         // stackoverflow.com/questions/59723927/spring-webflux-extract-value-from-mono

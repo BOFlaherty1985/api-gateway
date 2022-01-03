@@ -37,8 +37,8 @@ public class StockDashboardHandlersTest {
         MockServerRequest serverRequest = MockServerRequest.builder()
                 .uri(URI.create("http://test.com")).build();
 
-        String ticker = "IBM";
-        String stockPrice = "200.00";
+        Optional<String> ticker = Optional.of("IBM");
+        Optional<String> stockPrice = Optional.of("200.00");
 
         TechnicalAnalysisServerResponse response = TechnicalAnalysisServerResponseBuilder
                 .builder()
@@ -61,7 +61,7 @@ public class StockDashboardHandlersTest {
         MockServerRequest serverRequest = MockServerRequest.builder()
                 .uri(URI.create("http://test.com")).build();
 
-        String ticker = "IBM";
+        Optional<String> ticker = Optional.of("IBM");
 
         // when
         stockDashboardHandlers.stockDashboardHandler(serverRequest);

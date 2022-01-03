@@ -5,7 +5,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import server.companydetails.CompanyDetailsServerResponse;
-import server.companydetails.CompanyDetailsServerResponseBuilder;
+
+import java.util.Optional;
 
 @Component
 public class CompanyService {
@@ -17,15 +18,15 @@ public class CompanyService {
         this.webClientBuilder = webClientBuilder;
     }
 
-    public Mono<CompanyDetailsServerResponse> getCompanyResult(String ticker) {
+    public Mono<CompanyDetailsServerResponse> getCompanyResult(Optional<String> ticker) {
 
-        if (ticker == null || ticker.isEmpty()) {
+        if (ticker.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
         Mono<CompanyDetailsServerResponse> result =
                 webClientBuilder.build().get()
-                        .uri("http://company-service/companyOverview?ticker=" + ticker)
+                        .uri("http://company-service/companyOverview?ticker=" + ticker.get())
                         .retrieve()
                         .bodyToMono(CompanyDetailsServerResponse.class);
 
