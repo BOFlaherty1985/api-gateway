@@ -1,5 +1,6 @@
 package com.investment.apigateway.dashboard;
 
+import com.investment.apigateway.services.AuthenticationServer;
 import com.investment.apigateway.services.CompanyService;
 import com.investment.apigateway.services.TechnicalAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,9 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple4;
+import server.authenticationserver.AuthenticationRequest;
+import server.authenticationserver.AuthenticationRequestBuilder;
+import server.authenticationserver.AuthenticationServerResponse;
 import server.companydetails.CompanyDetailsServerResponse;
 import server.technicalanalysis.TechnicalAnalysisServerResponse;
 
@@ -19,11 +23,15 @@ import static org.springframework.web.reactive.function.BodyInserters.fromObject
 @Component
 public class StockDashboardHandlers {
 
+    private AuthenticationServer authenticationServer;
     private CompanyService companyService;
     private TechnicalAnalysisService technicalAnalysisService;
 
     @Autowired
-    public StockDashboardHandlers(CompanyService companyService, TechnicalAnalysisService technicalAnalysisService) {
+    public StockDashboardHandlers(AuthenticationServer authenticationServer,
+                                  CompanyService companyService,
+                                  TechnicalAnalysisService technicalAnalysisService) {
+        this.authenticationServer = authenticationServer;
         this.companyService = companyService;
         this.technicalAnalysisService = technicalAnalysisService;
     }
@@ -33,6 +41,15 @@ public class StockDashboardHandlers {
      */
     public Mono<ServerResponse> stockDashboardHandler(ServerRequest request) {
         Optional<String> ticker = Optional.of("IBM");
+
+        // Authentication Server
+        AuthenticationRequest authenticationRequest =
+                AuthenticationRequestBuilder.authenticationRequestBuilder()
+                .username(request.queryParam("username").get())
+                .password(request.queryParam("password").get())
+                .build();
+        Mono<AuthenticationServerResponse> authenticateUser
+                = authenticationServer.authenticateUser(authenticationRequest);
 
         // Company Service
         Mono<CompanyDetailsServerResponse> company = companyService.getCompanyResult(ticker);
@@ -98,5 +115,4 @@ public class StockDashboardHandlers {
         }
 
     }
-
 }
