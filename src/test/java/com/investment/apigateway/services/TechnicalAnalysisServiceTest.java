@@ -4,40 +4,22 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import server.technicalanalysis.Indicator;
 import server.technicalanalysis.TechnicalAnalysisServerResponse;
 import server.technicalanalysis.TechnicalAnalysisServerResponseBuilder;
 
-import javax.swing.text.html.Option;
-import java.util.*;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class TechnicalAnalysisServiceTest {
+public class TechnicalAnalysisServiceTest extends WebClientTest {
 
     private TechnicalAnalysisService technicalAnalysisService;
-
-    @Mock
-    private WebClient webClientMock;
-    @Mock
-    private WebClient.Builder webClientBuilderMock;
-    @Mock
-    private WebClient.RequestHeadersSpec requestHeadersMock;
-    @Mock
-    private WebClient.RequestHeadersUriSpec requestHeadersUriMock;
-    @Mock
-    WebClient.RequestBodyUriSpec requestBodyUriSpec;
-    @Mock
-    private WebClient.ResponseSpec responseMock;
 
     // TODO - Mockito / Integration Test Approach blog post - what approach have I taken? Why? What were the issues
 
@@ -79,19 +61,12 @@ public class TechnicalAnalysisServiceTest {
     @Test
     public void shouldReturnMockedResponseFromTechnicalAnalysisService() {
         // given
-        when(webClientBuilderMock.build()).thenReturn(webClientMock);
-        when(webClientBuilderMock.build().get()).thenReturn(requestHeadersUriMock);
-        when(requestHeadersUriMock.uri("http://technical-analysis-service/simpleMovingDayAnalysis?ticker=IBM&stockPrice=200.0")).thenReturn(requestHeadersMock);
-//        when(requestHeadersUriMock.header("correlation-id")).thenReturn(requestHeadersMock);
-//        when(requestHeadersUriMock.headers(notNull())).thenReturn(requestHeadersMock);
-//        when(requestHeadersMock.header("correlation-id")).thenReturn(UUID.randomUUID().toString());
-        when(requestHeadersMock.header(any(),any())).thenReturn(requestHeadersMock);
-        when(requestHeadersMock.retrieve()).thenReturn(responseMock);
+        setupWebClient("http://technical-analysis-service/simpleMovingDayAnalysis?ticker=IBM&stockPrice=200.0", true);
+
         TechnicalAnalysisServerResponse technicalAnalysisServiceResponse = TechnicalAnalysisServerResponseBuilder.builder()
                 .indicator(Optional.of(Indicator.BEARISH))
                 .build();
         when(responseMock.bodyToMono(TechnicalAnalysisServerResponse.class)).thenReturn(Mono.just(technicalAnalysisServiceResponse));
-
 
         Optional<String> ticker = Optional.of("IBM");
         Optional<String> stockPrice = Optional.of("200.0");

@@ -39,6 +39,8 @@ public class StockDashboardHandlersTest {
     @Mock
     private AuthenticationServer authenticationServer;
 
+    private final String jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlciIsImV4cCI6MTY0MzA3Mzk2OX0.mcp42Nl4tB2ApXjXAYhGDoS6lPLcbFzY_475dXw_2-A";
+
     @Test
     public void shouldCallAuthenticationSever() {
         // given
@@ -96,7 +98,7 @@ public class StockDashboardHandlersTest {
         stockDashboardHandlers.stockDashboardHandler(serverRequest);
 
         // then
-        verify(companyService).getCompanyResult(ticker);
+        verify(companyService).getCompanyResult(ticker, jwtToken);
     }
 
 }

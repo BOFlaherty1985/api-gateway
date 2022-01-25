@@ -17,6 +17,7 @@ import server.companydetails.CompanyDetailsServerResponse;
 import server.technicalanalysis.TechnicalAnalysisServerResponse;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 
@@ -48,11 +49,10 @@ public class StockDashboardHandlers {
                 .username(request.queryParam("username").get())
                 .password(request.queryParam("password").get())
                 .build();
-        Mono<AuthenticationServerResponse> authenticateUser
-                = authenticationServer.authenticateUser(authenticationRequest);
+        String jwtToken = authenticationServer.authenticateUser(authenticationRequest).getJwtToken();
 
         // Company Service
-        Mono<CompanyDetailsServerResponse> company = companyService.getCompanyResult(ticker);
+        Mono<CompanyDetailsServerResponse> companyDetailsResponse = companyService.getCompanyResult(ticker, jwtToken);
 
         // User Service
         Mono<String> user = Mono.just("user");
@@ -62,7 +62,7 @@ public class StockDashboardHandlers {
         Optional<String> stockPrice = Optional.of("200.00");
 
         // Technical Analysis Service
-        Mono<TechnicalAnalysisServerResponse> test = technicalAnalysisService
+        Mono<TechnicalAnalysisServerResponse> technicalAnalysisServerResponse = technicalAnalysisService
                 .getSimpleMovingDayAverageResult(ticker, stockPrice);
 
         // Multiple Mono to Single Response
@@ -70,7 +70,7 @@ public class StockDashboardHandlers {
         // https://blog.knoldus.com/reactive-java-combining-mono/
         // https://medium.com/@knoldus/spring-boot-combining-mono-s-358b83b7485a
 
-        return Mono.zip(company, user, stock, test)
+        return Mono.zip(companyDetailsResponse, user, stock, technicalAnalysisServerResponse)
                 .flatMap(objects ->
                         ServerResponse.ok()
                                 .contentType(MediaType.APPLICATION_JSON)

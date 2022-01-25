@@ -18,7 +18,7 @@ public class CompanyService {
         this.webClientBuilder = webClientBuilder;
     }
 
-    public Mono<CompanyDetailsServerResponse> getCompanyResult(Optional<String> ticker) {
+    public Mono<CompanyDetailsServerResponse> getCompanyResult(Optional<String> ticker, String jwtToken) {
 
         if (ticker.isEmpty()) {
             throw new IllegalArgumentException();
@@ -27,6 +27,7 @@ public class CompanyService {
         Mono<CompanyDetailsServerResponse> result =
                 webClientBuilder.build().get()
                         .uri("http://company-service/companyOverview?ticker=" + ticker.get())
+                        .header("Authorization", "Bearer " + jwtToken)
                         .retrieve()
                         .bodyToMono(CompanyDetailsServerResponse.class);
 

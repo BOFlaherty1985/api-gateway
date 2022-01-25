@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.reactive.function.client.WebClient;
 import problemdetail.ProblemDetail;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -17,27 +15,15 @@ import server.companydetails.CompanyDetailsServerResponseBuilder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyServiceTest {
+public class CompanyServiceTest extends WebClientTest {
 
     @InjectMocks
     private CompanyService companyService;
 
-    @Mock
-    private WebClient webClientMock;
-    @Mock
-    private WebClient.Builder webClientBuilderMock;
-    @Mock
-    private WebClient.RequestHeadersSpec requestHeadersMock;
-    @Mock
-    private WebClient.RequestHeadersUriSpec requestHeadersUriMock;
-    @Mock
-    WebClient.RequestBodyUriSpec requestBodyUriSpec;
-    @Mock
-    private WebClient.ResponseSpec responseMock;
+    private final String jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlciIsImV4cCI6MTY0MzA3Mzk2OX0.mcp42Nl4tB2ApXjXAYhGDoS6lPLcbFzY_475dXw_2-A";
 
     @BeforeEach
     public void setup() {
@@ -49,18 +35,13 @@ public class CompanyServiceTest {
     @Disabled // TODO - duplicated test?
     public void shouldReturnCompanyResultForGivenTicker() {
         // given
-        when(webClientBuilderMock.build()).thenReturn(webClientMock);
-        when(webClientBuilderMock.build().get()).thenReturn(requestHeadersUriMock);
-        when(requestHeadersMock.header(any(), any())).thenReturn(requestHeadersMock);
-        when(requestHeadersMock.retrieve()).thenReturn(responseMock);
-
         Optional<String> ticker = Optional.of("IBM");
 
         // when
         CompanyDetailsServerResponse response = CompanyDetailsServerResponseBuilder.builder.build();
         when(responseMock.bodyToMono(CompanyDetailsServerResponse.class)).thenReturn(Mono.just(response));
 
-        Mono<CompanyDetailsServerResponse> result = companyService.getCompanyResult(ticker);
+        Mono<CompanyDetailsServerResponse> result = companyService.getCompanyResult(ticker, jwtToken);
 
         // then
         StepVerifier.create(result.log())
@@ -74,20 +55,13 @@ public class CompanyServiceTest {
         Optional<String> ticker = Optional.empty();
 
         // when
-        assertThrows(IllegalArgumentException.class, () -> companyService.getCompanyResult(ticker));
+        assertThrows(IllegalArgumentException.class, () -> companyService.getCompanyResult(ticker, jwtToken));
     }
 
     @Test
     public void shouldReturnMockResponseFromCompanyDetailsService() {
         // given
-        when(webClientBuilderMock.build()).thenReturn(webClientMock);
-        when(webClientBuilderMock.build().get()).thenReturn(requestHeadersUriMock);
-        when(requestHeadersUriMock.uri("http://company-service/companyOverview?ticker=IBM")).thenReturn(requestHeadersMock);
-//        when(requestHeadersUriMock.header("correlation-id")).thenReturn(requestHeadersMock);
-//        when(requestHeadersUriMock.headers(notNull())).thenReturn(requestHeadersMock);
-//        when(requestHeadersMock.header("correlation-id")).thenReturn(UUID.randomUUID().toString());
-//        when(requestHeadersMock.header(any(), any())).thenReturn(requestHeadersMock);
-        when(requestHeadersMock.retrieve()).thenReturn(responseMock);
+        setupWebClient("http://company-service/companyOverview?ticker=IBM", true);
 
         Optional<String> ticker = Optional.of("IBM");
         Optional<String> name = Optional.of("International Business Machines");
@@ -108,7 +82,7 @@ public class CompanyServiceTest {
         when(responseMock.bodyToMono(CompanyDetailsServerResponse.class)).thenReturn(Mono.just(companyDetailsServerResponse));
 
         // when
-        Mono<CompanyDetailsServerResponse> result = companyService.getCompanyResult(ticker);
+        Mono<CompanyDetailsServerResponse> result = companyService.getCompanyResult(ticker, jwtToken);
 
         // then
         StepVerifier.create(result.log())
