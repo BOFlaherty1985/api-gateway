@@ -12,6 +12,8 @@ import org.springframework.mock.web.reactive.function.server.MockServerRequest;
 import reactor.core.publisher.Mono;
 import server.authenticationserver.AuthenticationRequest;
 import server.authenticationserver.AuthenticationRequestBuilder;
+import server.authenticationserver.AuthenticationServerResponse;
+import server.authenticationserver.AuthenticationServerResponseBuilder;
 import server.technicalanalysis.Indicator;
 import server.technicalanalysis.TechnicalAnalysisServerResponse;
 import server.technicalanalysis.TechnicalAnalysisServerResponseBuilder;
@@ -39,7 +41,8 @@ public class StockDashboardHandlersTest {
     @Mock
     private AuthenticationServer authenticationServer;
 
-    private final String jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlciIsImV4cCI6MTY0MzA3Mzk2OX0.mcp42Nl4tB2ApXjXAYhGDoS6lPLcbFzY_475dXw_2-A";
+    private final Optional<String> jwtToken =
+            Optional.of("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlciIsImV4cCI6MTY0MzA3Mzk2OX0.mcp42Nl4tB2ApXjXAYhGDoS6lPLcbFzY_475dXw_2-A");
 
     @Test
     public void shouldCallAuthenticationSever() {
@@ -55,6 +58,11 @@ public class StockDashboardHandlersTest {
                 .queryParam("password", authenticationRequest.getPassword())
                 .build();
 
+        AuthenticationServerResponse authenticationServerResponse =
+                AuthenticationServerResponseBuilder.authenticationServerResponseBuilder()
+                        .jwtToken(jwtToken.get()).build();
+        given(authenticationServer.authenticateUser(any(AuthenticationRequest.class))).willReturn(authenticationServerResponse);
+
         // when
         stockDashboardHandlers.stockDashboardHandler(serverRequest);
 
@@ -66,31 +74,47 @@ public class StockDashboardHandlersTest {
     public void shouldCallTechnicalAnalysisService() {
         // given
         MockServerRequest serverRequest = MockServerRequest.builder()
-                .uri(URI.create("http://test.com")).build();
+                .uri(URI.create("http://test.com"))
+                .queryParam("username", "username")
+                .queryParam("password", "password")
+                .build();
 
         Optional<String> ticker = Optional.of("IBM");
         Optional<String> stockPrice = Optional.of("200.00");
+
+        AuthenticationServerResponse authenticationServerResponse =
+                AuthenticationServerResponseBuilder.authenticationServerResponseBuilder()
+                        .jwtToken(jwtToken.get()).build();
+        given(authenticationServer.authenticateUser(any(AuthenticationRequest.class))).willReturn(authenticationServerResponse);
 
         TechnicalAnalysisServerResponse response = TechnicalAnalysisServerResponseBuilder
                 .builder()
                 .indicator(Optional.of(Indicator.BEARISH))
                 .build();
 
-        given(technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice))
+        given(technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice, jwtToken))
                 .willReturn(Mono.just(response));
 
         // when
         stockDashboardHandlers.stockDashboardHandler(serverRequest);
 
         // then
-        verify(technicalAnalysisService).getSimpleMovingDayAverageResult(ticker, stockPrice);
+        verify(technicalAnalysisService).getSimpleMovingDayAverageResult(ticker, stockPrice, jwtToken);
     }
 
     @Test
     public void shouldCallCompanyService() {
         // given
         MockServerRequest serverRequest = MockServerRequest.builder()
-                .uri(URI.create("http://test.com")).build();
+                .uri(URI.create("http://test.com"))
+                .queryParam("username", "username")
+                .queryParam("password", "password")
+                .build();
+
+        AuthenticationServerResponse authenticationServerResponse =
+                AuthenticationServerResponseBuilder.authenticationServerResponseBuilder()
+                        .jwtToken(jwtToken.get()).build();
+        given(authenticationServer.authenticateUser(any(AuthenticationRequest.class))).willReturn(authenticationServerResponse);
 
         Optional<String> ticker = Optional.of("IBM");
 

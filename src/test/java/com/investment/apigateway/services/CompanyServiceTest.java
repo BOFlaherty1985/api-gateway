@@ -23,8 +23,6 @@ public class CompanyServiceTest extends WebClientTest {
     @InjectMocks
     private CompanyService companyService;
 
-    private final String jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlciIsImV4cCI6MTY0MzA3Mzk2OX0.mcp42Nl4tB2ApXjXAYhGDoS6lPLcbFzY_475dXw_2-A";
-
     @BeforeEach
     public void setup() {
         companyService = new CompanyService(webClientBuilderMock);

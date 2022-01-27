@@ -49,7 +49,7 @@ public class StockDashboardHandlers {
                 .username(request.queryParam("username").get())
                 .password(request.queryParam("password").get())
                 .build();
-        String jwtToken = authenticationServer.authenticateUser(authenticationRequest).getJwtToken();
+        Optional<String> jwtToken = Optional.of(authenticationServer.authenticateUser(authenticationRequest).getJwtToken());
 
         // Company Service
         Mono<CompanyDetailsServerResponse> companyDetailsResponse = companyService.getCompanyResult(ticker, jwtToken);
@@ -63,7 +63,7 @@ public class StockDashboardHandlers {
 
         // Technical Analysis Service
         Mono<TechnicalAnalysisServerResponse> technicalAnalysisServerResponse = technicalAnalysisService
-                .getSimpleMovingDayAverageResult(ticker, stockPrice);
+                .getSimpleMovingDayAverageResult(ticker, stockPrice, jwtToken);
 
         // Multiple Mono to Single Response
         // stackoverflow.com/questions/59723927/spring-webflux-extract-value-from-mono

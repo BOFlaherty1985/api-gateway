@@ -32,7 +32,8 @@ public class TechnicalAnalysisService {
     }
 
     public Mono<TechnicalAnalysisServerResponse> getSimpleMovingDayAverageResult(Optional<String> ticker,
-                                                                                 Optional<String> stockPrice) {
+                                                                                 Optional<String> stockPrice,
+                                                                                 Optional<String> jwtToken) {
 
         if (ticker.isEmpty()|| stockPrice.isEmpty()) {
             throw new IllegalArgumentException("Ticker & StockPrice must not be empty or null.");
@@ -60,6 +61,7 @@ public class TechnicalAnalysisService {
                 .uri("http://technical-analysis-service/simpleMovingDayAnalysis?ticker="
                         + ticker.get() + "&stockPrice=" + stockPrice.get()) // http://{service-name}/endpoint
                 .header("correlation-id", correlation_id)
+                .header("Authorization", String.format("Bearer %s", jwtToken.get()))
                 .retrieve()
                 .bodyToMono(TechnicalAnalysisServerResponse.class);
 

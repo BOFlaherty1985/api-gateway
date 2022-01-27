@@ -38,7 +38,7 @@ public class TechnicalAnalysisServiceTest extends WebClientTest {
 
         // when
         Throwable exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice);
+            technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice, jwtToken);
         });
 
         assertEquals(exception.getMessage(), "Ticker & StockPrice must not be empty or null.");
@@ -52,7 +52,7 @@ public class TechnicalAnalysisServiceTest extends WebClientTest {
         // when
         Throwable exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             Optional<String> ticker = Optional.of("IBM");
-            technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice);
+            technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice, jwtToken);
         });
 
         assertEquals(exception.getMessage(), "Ticker & StockPrice must not be empty or null.");
@@ -72,7 +72,7 @@ public class TechnicalAnalysisServiceTest extends WebClientTest {
         Optional<String> stockPrice = Optional.of("200.0");
 
         // when
-        Mono<TechnicalAnalysisServerResponse> result = technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice);
+        Mono<TechnicalAnalysisServerResponse> result = technicalAnalysisService.getSimpleMovingDayAverageResult(ticker, stockPrice, jwtToken);
 
         // then
         StepVerifier.create(result.log())
